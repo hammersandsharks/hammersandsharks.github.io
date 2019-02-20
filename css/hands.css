@@ -13,3 +13,7 @@
 .h-and-s-text {
     color: var(--mushiao);
 }
+
+ul {
+    list-style-type: none;
+}
