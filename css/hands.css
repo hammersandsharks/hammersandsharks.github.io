@@ -6,9 +6,13 @@
     --hisuiiro: #38b48b;
 }
 
-.h-and-s-bg {
+.h-and-s-menu-bg {
     background-color: var(--wakatakeiro) !important;
   }
+
+.h-and-s-bg {
+    background-color: var(--masuhanairo) !important;
+}
 
 .h-and-s-text {
     color: var(--mushiao);
