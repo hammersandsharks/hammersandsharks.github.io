@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="The Hammers and Sharks Homepage">
+    <meta name="author" content="Brian Burton">
+  
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/hands.css">
+
+    <title>Solar powering a Raspberry Pi</title>
+  </head>
+  <body class="h-and-s-text">
+    <nav class="navbar navbar-expand-lg navbar-light h-and-s-menu-bg">
+      <a class="navbar-brand" href="/">H&amp;S</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link active" href="/">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link" href="/blog">Blog</a>
+          <a class="nav-item nav-link" href="/aboutme">About Me</a>
+          <a class="nav-item nav-link" href="/abouthands">About H&amp;S</a>
+        </div>
+      </div>
+    </nav>
+    <div class="container py-2">
+      <div class="container">
+    <main>
+        <h1>Solar Powering a Raspberry Pi</h1>
+<p>I support <a href="https://foldingathome.org/">Folding@Home</a> and <a href="https://www.worldcommunitygrid.org/">World Community Grid</a> because I have compute resource available and I want to be able to help where I can.</p>
+<p>But, there's a challenge with grid computing projects: they work by burning energy to solve mathematical puzzles that address real-world problems.</p>
+<p>I don't mind the cost - I can afford to donate some money to help with research into curing diseases, but I don't like the idea of the impact I'm having on the planet.</p>
+<p>What to do?</p>
+<p>Solar power is one answer, so time for a prototype to see what that's like in practice.</p>
+<h2>What do I want to achieve?</h2>
+<p>I already contribute to <a href="https://www.worldcommunitygrid.org/">World Community Grid</a> with a Raspberry Pi 4 and a 3B+ running 24x7. They run using <a href="https://shop.pimoroni.com/products/wide-input-shim?variant=2168104321034">Wide Input Shims</a> from Pimoroni and a general purpose 12 Volt 4 Amp power brick. All told, I'm reading about 11 Watts at the wall with both Pis running at full tilt.</p>
+<p>I want to take that and run it from a solar panel and battery. I want the battery to stay within sensible parameters to prevent too much deep discharging even if the weather is bad. And I want a sensible sized solar panel that I can use for other things.</p>
+<h2>The battery</h2>
+<p>The battery is the most important piece of the puzzle for me, so I'll spend some time on it here.</p>
+<h4>What kind of capacity do I need?</h4>
+<p>If I'm running over the winter, I have 11W that will need to be drawn every day for around 14 hours. Let's call it 12W, because at 12V <code>P=VA</code> tells us I need to draw a steady 1 Amp.</p>
+<p><a href="https://www.yuasa.co.uk/">Yuasa</a> make good quality automotive and industrial batteries. Importantly, they also publish really good datasheets. I'm going to refer to the datasheet for their <a href="https://www.yuasa.co.uk/batteries/industrial/rec-vrla-cyclic-use/rec50-12.html">REC50-12 cyclic battery</a>.</p>
+<h4>How do battery capacities work?</h4>
+<p>An ampere-hour is a way of understanding how much electrical charge you have available to consume. Yuasa say this particular battery is a 50Ah battery, with a maximum discharge current of 185A over the course of a minute. For the sake of example, it's safe for me to draw 50A from the battery!</p>
+<p>If I did draw 50A from the battery, it would last an hour. If I drew just 1A it would last me 50 hours.</p>
+<p>From this, because I'm working at 12V it's easy to work out that 1A for 14 hours is 14Ah every winter night, but that's just part of the story.</p>
+<h4>How does discharging a battery affect its life?</h4>
+<p>The datasheet gives us the expected life data, which ranges from 1400 cycles at 25% discharge to just 300 cycles at 100% discharge.</p>
+<p>I'm going to drain the battery nightly, so a &quot;cycle&quot; is the same as a night for my use case.</p>
+<p>If I bought a 14Ah battery with the cyclic life Yuasa specify I'd ruin it in less than a year! At the opposite end of the spectrum, if I wanted it to last 1400 cycles (nearly 4 years), I'd have to keep within the 25% discharge spec, which at 14Ah would be a 56Ah battery.</p>
+<p>At about £110 delivered for the Yuasa, that's an expensive test, but I reckon I can get a different brand battery for about half that, so I did the obvious thing and went for a 7Ah battery and changed projects!</p>
+<p>My test project is now going to be a 12 month timelapse on a Pi Zero W drawing 80mA. I'll still get the bigger battery when I'm ready, but £25 for the 7Ah battery was a simpler investment for this test.</p>
+<p>80mA for 14 hours is about 1.1Ah, which would need a 4.4Ah or higher battery to stay within the 25% discharge limit. I can test the theory with this new project, then apply it to the off-grid-grid-compute project.</p>
+<h4>A word on battery safety</h4>
+<p>The batteries I'm talking about are &quot;sealed lead acid&quot;, which means they contain all kinds of nasties.</p>
+<p>You do need to take some precautions.</p>
+<p>Even &quot;sealed&quot; batteries have a low-pressure vent to allow gas to escape, and gas is formed mostly when charging. Also, some gas can vent when the battery is hot, which can be during use or charging. The gas in question is <em>hydrogen</em> so allowing that to build up in an enclosed space with electrical equipment can be dangerous - bear that in mind.</p>
+<h2>The solar panel</h2>
+<p>I wanted a solar panel that:</p>
+<ul>
+<li>works for this project, and</li>
+<li>is useful for camping trips or other projects.</li>
+</ul>
+<p>I considered this an investment instead of a test, so in the end, I went for a hoofing great big <a href="https://www.photonicuniverse.com/en/catalog/full/209-60W-12V-solar-charging-kit-with-10A-controller-and-5m-cable-German-solar-cells.html">60W panel and charge controller kit from Photonic Universe</a>. Job done.</p>
+<p>Whether I buy the 7Ah battery or the ~50Ah battery, this will charge it. Fast. On a not very sunny day.</p>
+<h2>The charge controller</h2>
+<p>The charge controller is simple to use: connect the battery to the controller, connect the load to the controller then connect the panel to the controller.</p>
+<p><strong>Safety first</strong>: to prevent any surprises, I always connect ground (negative) connections first, that way I never become the route to ground for current.</p>
+<p>The controller mediates between the three and protects all of them, up to a point. The load is powered from the battery or the panel, depending on where power is available - if the panel has excess power to spare while charging the battery (or if the battery is charged) the load will be powered directly from the panel. If the panel can't provide enough power, the load is powered from the battery.</p>
+<p>I said the charge controller protects them up to a point: it's a good idea to add fuses in to protect the battery and the load (and the controller itself), so add a fuse that matches the charge controller (10A in my case) placed close to the battery positive terminal, and another to protect the charger from an over-enthusiastic load.</p>
+<p>What type of fuse? Well, I went to <a href="https://www.halfords.com/">Halfords</a> (a well-known UK automotive chain store) and bought an in-line fuse holder for car blade fuses. They're designed for 12V and come in values up to at least 30A, so perfect for my needs. Halfords actually do a good range of well priced 12V electrical gear.</p>
+<h2>The results</h2>
+<p>Everything works like a dream. I'm testing in November, and I don't have very good placement of the panel, but with my 7Ah battery and 1Ah drain over night the battery is recharged by about lunchtime. This means the panel is powering the Pi during the morning and charging the battery. I do have to try a bigger Pi with a bigger load - that'll be a follow-up post, I reckon.</p>
+
+    </main>
+</div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  </body>
+</html>
